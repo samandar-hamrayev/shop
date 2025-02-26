@@ -24,18 +24,19 @@
                 class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'index' %}">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">Categories</a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#!">All Products</a></li>
+                        <li><a class="dropdown-item" href=" {% url 'index' %}">All Products</a></li>
                         <li>
                             <hr class="dropdown-divider"/>
                         </li>
-                        <li><a class="dropdown-item" href="#!">Popular Items</a></li>
-                        <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
+                        {% for category in categories %}
+                        <li><a class="dropdown-item" href="{% url 'category_products' category.id %}">{{ category.title }}</a></li>
+                        {% endfor %}
                     </ul>
                 </li>
             </ul>
@@ -80,6 +81,9 @@
 
     </div>
 </div>
+{% if selected_category %}
+    <h2 class="text-center mt-4">Products in {{ selected_category.title }}</h2>
+{% endif %}
 <section class="py-5">
     <div class="container px-4 px-lg-5 mt-5">
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
@@ -109,14 +113,12 @@
                         </div>
                         <!-- Product actions-->
                         <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                            <div class="text-center"><a class="btn btn-outline-dark mt-auto"
-                                                        href="{% url 'product_detail' product.id %}">View
-                                product</a></div>
-
-
+                            <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="{% url 'product_detail' product.id %}">View product</a></div>
                         </div>
                     </div>
                 </div>
+            {% empty %}
+                <p class="text-center">No products found in this category.</p>
             {% endfor %}
 
         </div>
