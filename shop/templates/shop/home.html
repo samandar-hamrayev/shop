@@ -98,11 +98,9 @@
                                 <h5 class="fw-bolder">{{ product.name }}</h5>
                                 <!-- Product reviews-->
                                 <div class="d-flex justify-content-center small text-warning mb-2">
+                                    {% for item in "any"|ljust:product.rating %}
                                     <div class="bi-star-fill"></div>
-                                    <div class="bi-star-fill"></div>
-                                    <div class="bi-star-fill"></div>
-                                    <div class="bi-star-fill"></div>
-                                    <div class="bi-star-fill"></div>
+                                    {%  endfor%}
                                 </div>
                                 <!-- Product price-->
                                 <span class="text-muted text-decoration-line-through">${{ product.price }}</span>
