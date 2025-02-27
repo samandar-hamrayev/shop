@@ -43,3 +43,14 @@ class Product(BaseModel):
 
     def __str__(self):
         return self.name
+
+
+class Comment(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(max_length=400)
+    content = models.TextField(null=False, blank=False)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='comments')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} | {self.email}"
