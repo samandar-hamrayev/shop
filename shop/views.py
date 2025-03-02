@@ -2,22 +2,21 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import CommentCreateForm, ProductCreateForm
-from django.shortcuts import render
-from .models import Product, Category, Comment
+from .models import Product, Category
 
 
 def index(request):
+    query = request.GET.get('q', '')
     products = Product.objects.all().order_by('-updated_at')
-
+    if query:
+        products = Product.objects.filter(name__icontains=query)
     categories = Category.objects.all().order_by('-updated_at')
     return render(request, 'shop/home.html',  context={'products': products, 'categories': categories})
-
 
 
 def product_detail(request, id):
     product = Product.objects.filter(id=id).first()
     comments = product.comments.all()
-    
 
     if request.method == "POST":
         form = CommentCreateForm(request.POST)
@@ -28,7 +27,6 @@ def product_detail(request, id):
             return redirect('product_detail', id=product.id)
     else:
         form = CommentCreateForm()
-
     return render(request, 'shop/product_detail.html', {'product': product, 'comments': comments, 'form': form})
 
 
@@ -36,9 +34,7 @@ def products_by_category(request, id):
     category = Category.objects.filter(id = id).first()
     categories = Category.objects.all()
     products = Product.objects.filter(category=category)
-
     return render(request, 'shop/home.html', {'categories': categories, 'products': products, 'selected_category': category})
-
 
 
 @user_passes_test(lambda user: user.is_superuser)
@@ -49,12 +45,7 @@ def product_create(request):
         if form.is_valid():
             form.save()
             return redirect('index')
-
-    context = {
-        'form': form
-    }
-    return render(request, 'shop/product_create.html', context)
-
+    return render(request, 'shop/product_create.html', context = {'form': form})
 
 
 @user_passes_test(lambda user: user.is_superuser)
@@ -78,5 +69,7 @@ def product_delete(request, id):
         product.delete()
         return redirect('index')
     return redirect('product_detail', id)
+
+
 
 

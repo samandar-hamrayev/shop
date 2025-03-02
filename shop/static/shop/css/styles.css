@@ -22,3 +22,8 @@ body {
 footer {
     margin-top: 50px;
 }
+
+.rounded-logo {
+    border-radius: 50%;  /* Bu rasmni dumaloq qiladi */
+    object-fit: cover;   /* Agar rasm shakli to'g'ri bo'lmasa, uni to'liq joylash uchun */
+}
