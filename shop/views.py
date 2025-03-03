@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q
 
 from .forms import CommentCreateForm, ProductCreateForm
 from .models import Product, Category
@@ -15,6 +16,11 @@ def index(request):
 
 
 def product_detail(request, id):
+    query = request.GET.get('q', '')
+    if query:
+        products = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
+        categories = Category.objects.all().order_by('-updated_at')
+        return render(request, 'shop/home.html', context={'products': products, 'categories': categories})
     product = Product.objects.filter(id=id).first()
     comments = product.comments.all()
 
