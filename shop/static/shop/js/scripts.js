@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
             messageContainer.style.opacity = '0';
             setTimeout(function() {
                 messageContainer.remove();
-            }, 500); // Remove after fade-out animation
-        }, 5000); // 5 seconds delay
+            }, 500);
+        }, 5000);
     }
 });

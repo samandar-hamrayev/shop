@@ -118,7 +118,7 @@ def create_order(request, id):
                 'show_confirmation': True,
             })
         else:
-            messages.error(request, "There’s an error in the order form! Please check the following:")
+            messages.error(request, "There’s an error in the order form!")
             return render(request, 'shop/product_detail.html', {
                 'product': product,
                 'comments': product.comments.all(),
