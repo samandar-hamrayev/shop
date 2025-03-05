@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.db import models
 from decimal import Decimal
 
@@ -55,3 +56,18 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.name} | {self.email}"
+
+
+class Order(models.Model):
+    phone_validator = RegexValidator(
+        regex=r'^\+998\d{9}$',
+        message="Telefon raqami +998 bilan boshlanib, 9 ta belgidan iborat bo‘lishi kerak."
+    )
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=20, validators=[phone_validator])
+    quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(4)])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} | {self.product} | {self.quantity}"

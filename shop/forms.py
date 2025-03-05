@@ -1,5 +1,7 @@
 from django import forms
-from .models import Comment, Product
+from django.core.validators import MaxValueValidator
+
+from .models import Comment, Product, Order
 from django import forms
 from .models import Comment, Product
 
@@ -27,4 +29,20 @@ class ProductCreateForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'form-select'}),
             'rating': forms.Select(attrs={'class': 'form-select'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Quantity'}),
+        }
+
+class OrderCreateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'initial' in kwargs and 'product' in kwargs['initial']:
+            product = kwargs['initial']['product']
+            self.fields['quantity'].widget.attrs['max'] = min(product.quantity, 4)
+
+    class Meta:
+        model = Order
+        fields = ['name', 'phone', 'quantity']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ismingiz'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+998901234567'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }

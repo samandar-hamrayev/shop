@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import Product, Category, Comment
+from .models import Product, Category, Comment, Order
 
 
 class ProductAdmin(admin.ModelAdmin):
-    #admin panelda ko'rsatilagin maydonlar
+    #admin panelda ko'rsatiladigan maydonlar
     list_display = ('name', 'price', 'discount', 'category','rating', 'quantity', 'created_at', 'updated_at')
 
     #filterlashdagi maydonlar
@@ -41,7 +41,24 @@ class CategoryAdmin(admin.ModelAdmin):
 
     list_editable = ('title',)
 
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'product', 'created_at')
+
+    list_filter = ('name', 'email', 'product')
+
+    search_fields = ('name',)
+
+    ordering = ('name',)
+
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('name', 'phone', 'product', 'quantity', 'created_at')
+    list_filter = ('product', 'created_at')
+    search_fields = ('name', 'phone')
+    ordering = ('-created_at',)
+
+
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(Comment)
+admin.site.register(Comment, CommentAdmin)
+admin.site.register(Order, OrderAdmin)

@@ -1,8 +1,9 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 
-from .forms import CommentCreateForm, ProductCreateForm
+from .forms import CommentCreateForm, ProductCreateForm, OrderCreateForm
 from .models import Product, Category
 
 
@@ -21,10 +22,14 @@ def product_detail(request, id):
         products = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
         categories = Category.objects.all().order_by('-updated_at')
         return render(request, 'shop/home.html', context={'products': products, 'categories': categories})
+
     product = Product.objects.filter(id=id).first()
+    if not product:
+        return redirect('index')
+
     comments = product.comments.all()
 
-    if request.method == "POST":
+    if request.method == "POST" and 'comment_submit' in request.POST:
         form = CommentCreateForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
@@ -33,7 +38,14 @@ def product_detail(request, id):
             return redirect('product_detail', id=product.id)
     else:
         form = CommentCreateForm()
-    return render(request, 'shop/product_detail.html', {'product': product, 'comments': comments, 'form': form})
+
+    order_form = OrderCreateForm(initial={'product': product})
+    return render(request, 'shop/product_detail.html', {
+        'product': product,
+        'comments': comments,
+        'form': form,
+        'order_form': order_form,
+    })
 
 
 def products_by_category(request, id):
@@ -75,6 +87,46 @@ def product_delete(request, id):
         product.delete()
         return redirect('index')
     return redirect('product_detail', id)
+
+
+def create_order(request, id):
+    product = Product.objects.get(id=id)
+
+    if request.method == 'POST':
+        form = OrderCreateForm(request.POST, initial={'product': product})
+        if form.is_valid():
+            order_quantity = form.cleaned_data['quantity']
+
+            if 'confirm_order' in request.POST:
+                order = form.save(commit=False)
+                order.product = product
+                if order_quantity > product.quantity:
+                    messages.error(request, f"Sorry, only {product.quantity} items are available!")
+                else:
+                    order.save()
+                    product.quantity -= order_quantity
+                    product.save()
+                    messages.success(request, f"{order_quantity} {product.name} successfully ordered!")
+                return redirect('product_detail', id=product.id)
+
+            return render(request, 'shop/product_detail.html', {
+                'product': product,
+                'comments': product.comments.all(),
+                'form': form,
+                'comment_form': CommentCreateForm(),
+                'order_data': form.cleaned_data,
+                'show_confirmation': True,
+            })
+        else:
+            messages.error(request, "There’s an error in the order form! Please check the following:")
+            return render(request, 'shop/product_detail.html', {
+                'product': product,
+                'comments': product.comments.all(),
+                'form': form,
+                'comment_form': CommentCreateForm(),
+            })
+
+    return redirect('product_detail', id=product.id)
 
 
 
