@@ -17,6 +17,8 @@ def index(request):
 
 
 def product_detail(request, id):
+    global comment_form
+
     query = request.GET.get('q', '')
     if query:
         products = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
@@ -37,14 +39,19 @@ def product_detail(request, id):
             comment.save()
             return redirect('product_detail', id=product.id)
     else:
-        form = CommentCreateForm()
+        comment_form = CommentCreateForm()
 
-    order_form = OrderCreateForm(initial={'product': product})
+    order_form = OrderCreateForm()
+
+    related_products = Product.objects.filter(category=product.category).exclude(id=product.id).order_by('-created_at')[
+                       :4]
+
     return render(request, 'shop/product_detail.html', {
         'product': product,
         'comments': comments,
-        'form': form,
+        'comment_form': comment_form,
         'order_form': order_form,
+        'related_products': related_products,
     })
 
 
@@ -90,44 +97,41 @@ def product_delete(request, id):
 
 
 def create_order(request, id):
-    product = Product.objects.get(id=id)
+    product = get_object_or_404(Product, id=id)
+    order_form = OrderCreateForm(request.POST or None)
 
-    if request.method == 'POST':
-        form = OrderCreateForm(request.POST, initial={'product': product})
-        if form.is_valid():
-            order_quantity = form.cleaned_data['quantity']
+    if request.method == 'POST' and order_form.is_valid():
+        order_data = order_form.cleaned_data
+        order_quantity = order_data['quantity']
 
-            if 'confirm_order' in request.POST:
-                order = form.save(commit=False)
-                order.product = product
-                if order_quantity > product.quantity:
-                    messages.error(request, f"Sorry, only {product.quantity} items are available!")
-                else:
-                    order.save()
-                    product.quantity -= order_quantity
-                    product.save()
-                    messages.success(request, f"{order_quantity} {product.name} successfully ordered!")
-                return redirect('product_detail', id=product.id)
+        if 'confirm_order' in request.POST:
+            order = order_form.save(commit=False)
+            order.product = product
 
-            return render(request, 'shop/product_detail.html', {
-                'product': product,
-                'comments': product.comments.all(),
-                'form': form,
-                'comment_form': CommentCreateForm(),
-                'order_data': form.cleaned_data,
-                'show_confirmation': True,
-            })
-        else:
-            messages.error(request, "There’s an error in the order form!")
-            return render(request, 'shop/product_detail.html', {
-                'product': product,
-                'comments': product.comments.all(),
-                'form': form,
-                'comment_form': CommentCreateForm(),
-            })
+            if order_quantity > product.quantity:
+                messages.error(request, f"Sorry, only {product.quantity} items are available!")
+            else:
+                order.save()
+                product.quantity -= order_quantity
+                product.save()
+                messages.success(request, f"{order_quantity} {product.name} successfully ordered!")
+            return redirect('product_detail', id=product.id)
 
-    return redirect('product_detail', id=product.id)
+        return render(request, 'shop/product_detail.html', {
+            'product': product,
+            'comments': product.comments.all(),
+            'order_form': order_form,
+            'comment_form': CommentCreateForm(),
+            'order_data': order_data,
+            'show_confirmation': True,
+        })
 
+    return render(request, 'shop/product_detail.html', {
+        'product': product,
+        'comments': product.comments.all(),
+        'order_form': order_form,
+        'comment_form': CommentCreateForm(),
+    })
 
 
 

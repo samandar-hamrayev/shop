@@ -61,7 +61,7 @@ class Comment(models.Model):
 class Order(models.Model):
     phone_validator = RegexValidator(
         regex=r'^\+998\d{9}$',
-        message="Telefon raqami +998 bilan boshlanib, 9 ta belgidan iborat bo‘lishi kerak."
+        message="The phone number must start with +998 and consist of 9 characters."
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)

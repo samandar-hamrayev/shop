@@ -1,9 +1,7 @@
 from django import forms
-from django.core.validators import MaxValueValidator
+from django.core.validators import RegexValidator
 
 from .models import Comment, Product, Order
-from django import forms
-from .models import Comment, Product
 
 class CommentCreateForm(forms.ModelForm):
     class Meta:
@@ -31,18 +29,13 @@ class ProductCreateForm(forms.ModelForm):
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Quantity'}),
         }
 
-class OrderCreateForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if 'initial' in kwargs and 'product' in kwargs['initial']:
-            product = kwargs['initial']['product']
-            self.fields['quantity'].widget.attrs['max'] = min(product.quantity, 4)
 
+class OrderCreateForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['name', 'phone', 'quantity']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ismingiz'}),
-            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+998901234567'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your name'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+998**1234567'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': 'Quantity'}),
         }
