@@ -13,6 +13,13 @@ def index(request):
     if query:
         products = Product.objects.filter(name__icontains=query)
     categories = Category.objects.all().order_by('-updated_at')
+
+    filter_query = request.GET.get('filter')
+    if filter_query == "expensive":
+        products = products.order_by('-price')
+    elif filter_query == "cheap":
+        products = products.order_by('price')
+
     return render(request, 'shop/home.html',  context={'products': products, 'categories': categories})
 
 

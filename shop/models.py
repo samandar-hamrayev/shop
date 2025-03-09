@@ -1,3 +1,6 @@
+from multiprocessing.managers import BaseManager
+
+from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.db import models
@@ -7,7 +10,14 @@ from decimal import Decimal
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    my_order = models.PositiveIntegerField(
+        default=0,
+        blank=False,
+        null=False,
+    )
+
     class Meta:
+        ordering = ['my_order']
         abstract = True
 
 class Category(BaseModel):
@@ -41,7 +51,7 @@ class Product(BaseModel):
     def discounted_price(self):
         if self.discount > 0:
             self.price = self.price * Decimal(1 - self.discount / 100)
-        return Decimal(f'{self.price}').quantize(Decimal('0.00'))
+        return round(self.price, 2)
 
     def __str__(self):
         return self.name

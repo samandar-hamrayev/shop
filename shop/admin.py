@@ -1,11 +1,52 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
 from .models import Product, Category, Comment, Order
+from adminsortable2.admin import SortableAdminMixin
+from import_export import resources
+from import_export.admin import ImportExportMixin, ImportExportModelAdmin
+from django.contrib import admin
 
 
-class ProductAdmin(admin.ModelAdmin):
+#import export uchun resource modelllar
+class ProductResuorces(resources.ModelResource):
+    class Mete:
+        model = Product
+
+class CategoryResuorces(resources.ModelResource):
+    class Mete:
+        model = Category
+
+class CommentResuorces(resources.ModelResource):
+    class Mete:
+        model = Comment
+
+class OrderResuorces(resources.ModelResource):
+    class Mete:
+        model = Order
+
+
+#tabular inline uchun modellar
+class ProductInline(admin.TabularInline):
+    model = Product
+    extra = 1
+
+class CommentInline(admin.TabularInline):
+    model = Comment
+    extra = 1
+
+class OrderInline(admin.TabularInline):
+    model = Order
+    extra = 1
+
+
+    
+
+
+
+class ProductAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     #admin panelda ko'rsatiladigan maydonlar
-    list_display = ('name', 'price', 'discount', 'category','rating', 'quantity', 'created_at', 'updated_at')
+    list_display = ('name', 'display_image', 'price', 'discount', 'category', 'rating', 'quantity', 'created_at', 'updated_at')
 
     #filterlashdagi maydonlar
     list_filter = ('category', 'rating', 'discount')
@@ -14,21 +55,25 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ('name', 'discount')
 
     #tartiblash, narx bo'yicha kamayish
-    ordering = ['-price']
+    ordering = ['my_order']
 
-    #qayta edit qilishda ko'rsatilagan maydonlar
-    fields = ('name', 'description', 'price', 'discount', 'category', 'rating', 'quantity', 'image')
+    #product qoshishda comment va order ham qosha oladi, garchi noreal bo'lsa ham
+    inlines = [CommentInline, OrderInline]
 
-    #faqat korish mumkin bolgan maydonlar
-    readonly_fields = ('discounted_price',)
+    def display_image(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="max-height: 50px; max-width: 50px;" />',
+                obj.image.url
+            )
+        return "Rasm yo‘q"
 
-    #batafsil objectga kirmasdan tahrirlash mumkin bo'lgan maydonlar
-    list_editable = ('price', 'quantity',)
+    display_image.short_description = "Rasm"
 
 
 
 
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ('id', 'title', 'created_at', 'updated_at')
 
     list_filter = ('created_at', 'updated_at')
@@ -41,7 +86,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
     list_editable = ('title',)
 
-class CommentAdmin(admin.ModelAdmin):
+    inlines = [ProductInline]
+
+class CommentAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ('name', 'email', 'product', 'created_at')
 
     list_filter = ('name', 'email', 'product')
@@ -50,7 +97,7 @@ class CommentAdmin(admin.ModelAdmin):
 
     ordering = ('name',)
 
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ('name', 'phone', 'product', 'quantity', 'created_at')
     list_filter = ('product', 'created_at')
     search_fields = ('name', 'phone')
