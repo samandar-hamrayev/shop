@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'baton',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'import_export',
     'adminsortable2',
     'shop',
+    'baton.autodiscover',
 
 ]
 
@@ -129,3 +131,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'shop/media')
+
+
+BATON = {
+    'SITE_HEADER': 'Mening Admin Panelim',
+    'SITE_TITLE': 'Mening Saytim',
+    'INDEX_TITLE': 'Boshqaruv Paneliga Xush Kelibsiz',
+    'SUPPORT_HREF': 'https://github.com/otto-torino/django-baton',
+    'COPYRIGHT': '© 2025 Mening Kompaniyam',
+    'POWERED_BY': '<a href="https://t.me/ikuza">My Telegram</a>',
+    'MENU_ALWAYS_COLLAPSED': False,  # Yon menyu doim yopiq bo‘lishi
+    'GRAVATAR_ENABLED': True,
+    'MENU': (
+        {'type': 'title', 'label': 'Asosiy', 'apps': ('auth', 'shop')},
+        {'type': 'app', 'name': 'auth', 'label': 'Foydalanuvchilar'},
+        {'type': 'app', 'name': 'shop', 'label': 'Shop'},
+    ),
+}
