@@ -42,8 +42,10 @@ INSTALLED_APPS = [
     'adminsortable2',
     'shop',
     'baton.autodiscover',
+    'users',
 
 ]
+AUTH_USER_MODEL = "users.User"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -140,7 +142,7 @@ BATON = {
     'SUPPORT_HREF': 'https://github.com/otto-torino/django-baton',
     'COPYRIGHT': '© 2025 Mening Kompaniyam',
     'POWERED_BY': '<a href="https://t.me/ikuza">My Telegram</a>',
-    'MENU_ALWAYS_COLLAPSED': False,  # Yon menyu doim yopiq bo‘lishi
+    'MENU_ALWAYS_COLLAPSED': False,
     'GRAVATAR_ENABLED': True,
     'MENU': (
         {'type': 'title', 'label': 'Asosiy', 'apps': ('auth', 'shop')},
