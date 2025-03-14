@@ -1,4 +1,4 @@
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
 
@@ -30,3 +30,4 @@ def logout_view(request):
 
 def home_view(request):
     return render(request, "users/home.html")
+

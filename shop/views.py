@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, login_required, permission_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 
@@ -69,7 +69,13 @@ def products_by_category(request, id):
     return render(request, 'shop/home.html', {'categories': categories, 'products': products, 'selected_category': category})
 
 
-@user_passes_test(lambda user: user.is_superuser)
+
+
+def is_superuser(user):
+    return user.is_superuser and user.is_staff
+
+# @login_required()
+@user_passes_test(is_superuser)
 def product_create(request):
     form = ProductCreateForm()
     if request.method == 'POST':
@@ -80,7 +86,6 @@ def product_create(request):
     return render(request, 'shop/product_create.html', context = {'form': form})
 
 
-@user_passes_test(lambda user: user.is_superuser)
 def product_update(request, id):
     product = get_object_or_404(Product, id=id)
 
@@ -94,7 +99,6 @@ def product_update(request, id):
     return render(request, template_name='shop/product_update.html', context={'form': form, 'product': product})
 
 
-@user_passes_test(lambda user: user.is_superuser)
 def product_delete(request, id):
     product = get_object_or_404(Product, id=id)
     if request.method == 'POST':

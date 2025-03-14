@@ -43,9 +43,6 @@ class CustomUserCreationForm(UserCreationForm):
         'placeholder': 'Parolni tasdiqlang',
     }))
 
-from django import forms
-from django.contrib.auth.forms import AuthenticationForm
-from .models import User
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(widget=forms.EmailInput(attrs={
